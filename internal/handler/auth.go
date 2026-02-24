@@ -81,7 +81,7 @@ func (h *AuthHandler) Login(c *gin.Context) {
 
 	user, accessToken, refreshToken, err := h.authSvc.Login(c.Request.Context(), username, password)
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"result": err.Error()})
+		c.JSON(http.StatusOK, gin.H{"result": err.Error()})
 		return
 	}
 

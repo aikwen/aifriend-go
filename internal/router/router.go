@@ -73,7 +73,7 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 		accountGroup.POST("/register/", h.Auth.Register)
 		accountGroup.POST("/refresh_token/", h.Auth.Refresh)
 
-		// VIP 接口区
+		// protect 接口区
 		authRequiredGroup := accountGroup.Group("/")
 		authRequiredGroup.Use(mw.JWTAuthMiddleware(accessSecret))
 		{
@@ -81,6 +81,8 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 			authRequiredGroup.GET("/get_user_info/", h.User.GetUserInfo)
 		}
 	}
+
+	r.POST("/api/user/profile/update/", mw.JWTAuthMiddleware(accessSecret), h.User.UpdateUserInfo)
 
 	return r
 }

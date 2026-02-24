@@ -1,10 +1,15 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
+	"os"
+	"path"
+	"path/filepath"
 
-	"github.com/gin-gonic/gin"
 	"github.com/aikwen/aifriend-go/internal/service"
+	"github.com/aikwen/aifriend-go/pkg/hash"
+	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
@@ -18,6 +23,7 @@ func NewUserHandler(us service.UserService) *UserHandler {
 }
 
 // GetUserInfo 处理获取用户信息的 GET /api/user/account/get_user_info/
+// protect
 func (h *UserHandler) GetUserInfo(c *gin.Context) {
 	// 从context 获取 userID
 	userIDAny, exists := c.Get("userID")
@@ -42,7 +48,86 @@ func (h *UserHandler) GetUserInfo(c *gin.Context) {
 		"result":   "success",
 		"user_id":  user.ID,
 		"username": user.Username,
-		"photo":    "/media/" + user.Photo,
+		"photo":    path.Join("/media/", user.Photo),
 		"profile":  user.Profile,
+	})
+}
+
+// UpdateUserInfo 更新用户信息 post /api/user/profile/update/
+// protect
+func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
+	userIDAny, exists := c.Get("userID")
+	if !exists {
+		c.JSON(http.StatusOK, gin.H{"result": "系统异常"})
+		return
+	}
+
+	userID, ok := userIDAny.(uint)
+	if !ok {
+		c.JSON(http.StatusOK, gin.H{"result": "系统异常"})
+		return
+	}
+
+	// 提取参数
+	username := c.PostForm("username")
+	profile := c.PostForm("profile")
+
+	if username == "" {
+		c.JSON(http.StatusOK, gin.H{"result": "用户名不能为空"})
+		return
+	}
+	if profile == "" {
+		c.JSON(http.StatusOK, gin.H{"result": "简介不能为空"})
+		return
+	}
+
+	fileHeader, err := c.FormFile("photo")
+	photoPath := ""
+	if err == nil && fileHeader != nil {
+
+		src, err := fileHeader.Open()
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"result": "上传头像错误"})
+			return
+		}
+		defer src.Close()
+
+		// 计算哈希
+		hashVal, err := hash.HashReader(src)
+		if err != nil {
+			c.JSON(http.StatusOK, gin.H{"result": "处理头像错误"})
+			return
+		}
+		hashStr := fmt.Sprintf("%x", hashVal)
+
+		// 生成文件路径
+		ext := filepath.Ext(fileHeader.Filename)
+		fileName := fmt.Sprintf("%d_%s%s", userID, hashStr, ext)
+		uploadDir := "media/user/photos/"
+		_ = os.MkdirAll(uploadDir, os.ModePerm)
+		fullDiskPath := filepath.Join(uploadDir, fileName)
+
+		// 检查文件是否存在
+			if err := c.SaveUploadedFile(fileHeader, fullDiskPath); err != nil {
+				c.JSON(http.StatusOK, gin.H{"result": "头像保存失败，请稍后重试"})
+				return
+			}
+
+
+		photoPath = "user/photos/" + fileName
+	}
+
+	updatedUser, err := h.userSvc.UpdateUserInfo(c.Request.Context(), userID, username, profile, photoPath)
+	if err != nil {
+		c.JSON(http.StatusOK, gin.H{"result": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"result":   "success",
+		"user_id":  updatedUser.ID,
+		"username": updatedUser.Username,
+		"profile":  updatedUser.Profile,
+		"photo":    path.Join("/media/", updatedUser.Photo),
 	})
 }

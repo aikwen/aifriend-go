@@ -10,6 +10,7 @@ import (
 
 type UserStore interface {
 	Create(ctx context.Context, user *models.User) error
+	Update(ctx context.Context, user *models.User) error
 	GetByUsername(ctx context.Context, username string) (*models.User, error)
 	GetByID(ctx context.Context, id uint) (*models.User, error)
 }
@@ -25,8 +26,12 @@ func NewUserStore(db *gorm.DB) UserStore {
 	}
 }
 
-func (us *userStore) Create(ctx context.Context, user *models.User) error{
+func (us *userStore) Create(ctx context.Context, user *models.User) error {
 	return us.db.WithContext(ctx).Create(user).Error
+}
+
+func (us *userStore) Update(ctx context.Context, user *models.User) error {
+	return us.db.WithContext(ctx).Save(user).Error
 }
 
 func (us *userStore) GetByUsername(ctx context.Context, username string) (*models.User, error){
