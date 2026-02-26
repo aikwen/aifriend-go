@@ -3,22 +3,22 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"os"
 	"path"
-	"path/filepath"
 
 	"github.com/aikwen/aifriend-go/internal/service"
-	"github.com/aikwen/aifriend-go/pkg/hash"
+	"github.com/aikwen/aifriend-go/pkg/storage"
 	"github.com/gin-gonic/gin"
 )
 
 type UserHandler struct {
 	userSvc service.UserService
+	storage storage.Storage
 }
 
-func NewUserHandler(us service.UserService) *UserHandler {
+func NewUserHandler(us service.UserService, st storage.Storage) *UserHandler {
 	return &UserHandler{
 		userSvc: us,
+		storage: st,
 	}
 }
 
@@ -84,37 +84,12 @@ func (h *UserHandler) UpdateUserInfo(c *gin.Context) {
 	fileHeader, err := c.FormFile("photo")
 	photoPath := ""
 	if err == nil && fileHeader != nil {
-
-		src, err := fileHeader.Open()
+		userIDStr := fmt.Sprintf("%d", userID)
+		photoPath, err = h.storage.Save(fileHeader, "user/photos", userIDStr)
 		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"result": "上传头像错误"})
+			c.JSON(http.StatusOK, gin.H{"result": "头像保存失败，请稍后重试"})
 			return
 		}
-		defer src.Close()
-
-		// 计算哈希
-		hashVal, err := hash.HashReader(src)
-		if err != nil {
-			c.JSON(http.StatusOK, gin.H{"result": "处理头像错误"})
-			return
-		}
-		hashStr := fmt.Sprintf("%x", hashVal)
-
-		// 生成文件路径
-		ext := filepath.Ext(fileHeader.Filename)
-		fileName := fmt.Sprintf("%d_%s%s", userID, hashStr, ext)
-		uploadDir := "media/user/photos/"
-		_ = os.MkdirAll(uploadDir, os.ModePerm)
-		fullDiskPath := filepath.Join(uploadDir, fileName)
-
-		// 检查文件是否存在
-			if err := c.SaveUploadedFile(fileHeader, fullDiskPath); err != nil {
-				c.JSON(http.StatusOK, gin.H{"result": "头像保存失败，请稍后重试"})
-				return
-			}
-
-
-		photoPath = "user/photos/" + fileName
 	}
 
 	updatedUser, err := h.userSvc.UpdateUserInfo(c.Request.Context(), userID, username, profile, photoPath)

@@ -6,7 +6,7 @@ import (
 )
 
 type User struct {
-	// 自动包含 ID, CreatedAt, UpdatedAt, DeletedAt 四个字段
+	// 包含 ID, CreatedAt, UpdatedAt, DeletedAt 四个字段
 	gorm.Model
 
 	Username string `gorm:"type:varchar(150);uniqueIndex;not null"`

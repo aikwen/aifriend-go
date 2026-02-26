@@ -3,11 +3,10 @@ package service
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
 
 	"github.com/aikwen/aifriend-go/internal/models"
 	"github.com/aikwen/aifriend-go/internal/store"
+	"github.com/aikwen/aifriend-go/pkg/storage"
 	"gorm.io/gorm"
 )
 
@@ -18,11 +17,13 @@ type UserService interface {
 
 type userService struct {
     userStore store.UserStore
+    storage storage.Storage
 }
 
-func NewUserService(us store.UserStore) UserService {
+func NewUserService(us store.UserStore, st storage.Storage) UserService {
     return &userService{
         userStore: us,
+        storage: st,
     }
 }
 
@@ -70,13 +71,10 @@ func (s *userService) UpdateUserInfo(ctx context.Context, userID uint, newUserna
 
     // 更新用户头像
     if newPhoto != "" {
-        if currentUser.Photo != newPhoto {
-            if currentUser.Photo != "" && currentUser.Photo != "user/photos/default.png" {
-                diskPath := filepath.Join("media", currentUser.Photo)
-                _ = os.Remove(diskPath)
-            }
-            currentUser.Photo = newPhoto
+        if currentUser.Photo != "" && currentUser.Photo != "user/photos/default.png" {
+            _ = s.storage.Delete(currentUser.Photo)
         }
+        currentUser.Photo = newPhoto
 	}
 
     if err := s.userStore.Update(ctx, currentUser); err != nil {
