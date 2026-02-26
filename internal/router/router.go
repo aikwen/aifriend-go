@@ -82,7 +82,20 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 		}
 	}
 
-	r.POST("/api/user/profile/update/", mw.JWTAuthMiddleware(accessSecret), h.User.UpdateUserInfo)
+	characterGroup := r.Group("/api/create/character")
+	characterGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+	{
+		characterGroup.POST("/create/", h.Character.CreateCharacter)
+		characterGroup.GET("/get_single/", h.Character.GetCharacter)
+		characterGroup.POST("/update/", h.Character.UpdateCharacter)
+		characterGroup.POST("/remove/", h.Character.DeleteCharacter)
+	}
+
+	profileGroup := r.Group("/api/user/profile")
+	profileGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+	{
+		profileGroup.POST("/update/", h.User.UpdateUserInfo)
+	}
 
 	return r
 }
