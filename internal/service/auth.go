@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"strconv"
 
 	"github.com/aikwen/aifriend-go/internal/models"
 	"github.com/aikwen/aifriend-go/internal/store"
@@ -105,9 +106,13 @@ func (as *authService) RefreshToken(ctx context.Context, refreshTokenString stri
         return "", "", errors.New("无效的刷新令牌或已过期，请重新登录")
     }
 
-    username := claims.Name
+    userID64, err := strconv.ParseUint(claims.Subject, 10, 64)
+    if err != nil {
+        return "", "", errors.New("令牌数据异常")
+    }
+    userID := uint(userID64)
 
-    user, err := as.userStore.GetByUsername(ctx, username)
+    user, err := as.userStore.GetByID(ctx, userID)
 	if err != nil {
 		return "", "", errors.New("用户不存在或状态异常")
 	}
