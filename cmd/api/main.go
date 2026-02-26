@@ -13,6 +13,7 @@ import (
 	"github.com/aikwen/aifriend-go/internal/service"
 	"github.com/aikwen/aifriend-go/internal/store"
 	"github.com/aikwen/aifriend-go/pkg/db"
+	"github.com/aikwen/aifriend-go/pkg/storage"
 )
 
 func main(){
@@ -47,16 +48,19 @@ func main(){
 	gormDB := db.InitMySQL(dsn, appEnv)
 
 	log.Println("正在进行数据库迁移...")
-	if err := gormDB.AutoMigrate(&models.User{}); err != nil {
+	if err := gormDB.AutoMigrate(&models.User{}, &models.Character{}); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
 	log.Println("数据库迁移结束...")
+
 	// 依赖注入
 	userStore := store.NewUserStore(gormDB)
+	characterStore := store.NewCharacterStore(gormDB)
+	fileStorage := storage.NewLocalStorage("media")
 	authSvc := service.NewAuthService(userStore, accessSecret, refreshSecret, rotate)
-	userSvc := service.NewUserService(userStore)
-
-	h := handler.NewHandler(authSvc, userSvc)
+	userSvc := service.NewUserService(userStore, fileStorage)
+	characterSvc := service.NewCharacterService(characterStore, fileStorage)
+	h := handler.NewHandler(authSvc, userSvc, characterSvc,fileStorage)
 	r := router.SetupRouter(h, accessSecret, appEnv)
 
 	//启动
