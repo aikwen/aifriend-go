@@ -45,6 +45,9 @@ type Service interface {
 
 	// GetCharacterList 获取指定数量的虚拟角色
 	GetCharacterList(ctx context.Context, authorID uint, offset int) ([]*models.Character, error)
+
+	// 根据关键字搜索角色
+	SearchCharacters(ctx context.Context, offset int, limit int, searchQuery string) ([]*models.Character, error)
 }
 
 // characterService 是 CharacterService 接口的具体实现
