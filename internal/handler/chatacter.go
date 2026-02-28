@@ -73,7 +73,7 @@ func (h *CharacterHandler) CreateCharacter(c *gin.Context) {
 		return
 	}
 
-	bgImagePath, err := h.storage.Save(photoHeader, "character/background_images", userIDStr)
+	bgImagePath, err := h.storage.Save(bgImageHeader, "character/background_images", userIDStr)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"result": "背景图保存失败"})
 		return
