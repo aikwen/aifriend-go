@@ -1,0 +1,17 @@
+# aifriend-go/config.yaml
+server:
+  port: ":8000"
+  # dev prod
+  mode: "dev"
+
+db:
+  mysql_dsn: "aifriends:123456@tcp(127.0.0.1:3306)/aifriends_db?charset=utf8mb4&parseTime=True&loc=Local"
+  max_open_conns: 100
+  max_idle_conns: 10
+  conn_max_lifetime: 3600 # 秒
+
+jwt:
+  access_secret: "8f3a9d1b6e4c2f0a5d8b7e3c9a1f4b2d6e8c0a3f5b7d9e1a2c4f6b8d0e3a5c7f"
+  refresh_secret: "b2d4f6a8c0e213579bdf13579a8c6e4d2b0f1e3d5c7b9a0f2e4d6c8b0a1f3e5d"
+  rotate_refresh_tokens: true
+  blacklist_after_rotation: true

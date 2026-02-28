@@ -8,15 +8,17 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+
+	"github.com/aikwen/aifriend-go/config"
 )
 
 // InitMySQL 初始化 MySQL 连接
 // dsn "root:123456@tcp(127.0.0.1:3306)/aifriends_db?charset=utf8mb4&parseTime=True&loc=Local"
 // env "prod", "dev"
-func InitMySQL(dsn string, env string) *gorm.DB {
+func InitMySQL(cfg config.DBConfig, appEnv string) *gorm.DB {
 	// 配置日志
 	logLevel := logger.Info
-	if env == "prod" {
+	if appEnv == "prod" {
 		logLevel = logger.Warn
 	}
 
@@ -31,7 +33,7 @@ func InitMySQL(dsn string, env string) *gorm.DB {
 	)
 
 	// 打开连接
-	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(cfg.DsnMysql), &gorm.Config{
 		Logger: newLogger,
 	})
 	if err != nil {
@@ -45,13 +47,13 @@ func InitMySQL(dsn string, env string) *gorm.DB {
 	}
 
 	// SetMaxIdleConns 设置空闲连接池中连接的最大数量
-	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetMaxIdleConns(cfg.MaxIdleConns)
 
 	// SetMaxOpenConns 设置打开数据库连接的最大数量
-	sqlDB.SetMaxOpenConns(100)
+	sqlDB.SetMaxOpenConns(cfg.MaxOpenConns)
 
 	// SetConnMaxLifetime 设置连接可复用的最大时间
-	sqlDB.SetConnMaxLifetime(time.Hour)
+	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(cfg.ConnMaxLifetime))
 
 	return db
 }
