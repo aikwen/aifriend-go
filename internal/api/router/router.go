@@ -83,18 +83,30 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 	}
 
 	characterGroup := r.Group("/api/create/character")
-	characterGroup.Use(mw.JWTAuthMiddleware(accessSecret))
 	{
-		characterGroup.POST("/create/", h.CreateCharacter)
-		characterGroup.GET("/get_single/", h.GetCharacter)
-		characterGroup.POST("/update/", h.UpdateCharacter)
-		characterGroup.POST("/remove/", h.DeleteCharacter)
+		characterGroup.GET("/get_list/", h.GetCharacterList)
+
+		// protect 接口区域
+		authRequiredGroup := characterGroup.Group("/")
+		authRequiredGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+		{
+			authRequiredGroup.POST("/create/", h.CreateCharacter)
+			authRequiredGroup.GET("/get_single/", h.GetCharacter)
+			authRequiredGroup.POST("/update/", h.UpdateCharacter)
+			authRequiredGroup.POST("/remove/", h.DeleteCharacter)
+		}
 	}
 
 	profileGroup := r.Group("/api/user/profile")
 	profileGroup.Use(mw.JWTAuthMiddleware(accessSecret))
 	{
 		profileGroup.POST("/update/", h.UpdateUserInfo)
+	}
+
+
+	homepageGroup := r.Group("/api/homepage")
+	{
+		homepageGroup.GET("/index/", h.SearchCharacters)
 	}
 
 	return r
