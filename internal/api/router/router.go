@@ -109,5 +109,16 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 		homepageGroup.GET("/index/", h.SearchCharacters)
 	}
 
+	friendGroup := r.Group("/api/friend")
+	{
+		authRequiredGroup := friendGroup.Group("/")
+		authRequiredGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+		{
+			authRequiredGroup.POST("/get_or_create/", h.GetOrCreateFriend)
+			authRequiredGroup.POST("/remove/", h.RemoveFriend)
+			authRequiredGroup.GET("/get_list/", h.GetFriendList)
+		}
+	}
+
 	return r
 }
