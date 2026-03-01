@@ -5,12 +5,13 @@ import (
 
 	"github.com/aikwen/aifriend-go/config"
 
-	"github.com/aikwen/aifriend-go/internal/api/router"
 	"github.com/aikwen/aifriend-go/internal/api/handler"
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/api/router"
 	"github.com/aikwen/aifriend-go/internal/auth"
-	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/internal/character"
+	"github.com/aikwen/aifriend-go/internal/friend"
+	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/pkg/db"
 	"github.com/aikwen/aifriend-go/pkg/storage"
 )
@@ -22,7 +23,9 @@ func main(){
 	gormDB := db.InitMySQL(cfg.DB, cfg.Server.Mode)
 
 	log.Println("正在进行数据库迁移...")
-	if err := gormDB.AutoMigrate(&models.User{}, &models.Character{}); err != nil {
+	if err := gormDB.AutoMigrate(&models.User{},
+		 &models.Character{},
+		 &models.Friend{}); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
 	log.Println("数据库迁移结束...")
@@ -32,7 +35,8 @@ func main(){
 	userSvc := user.NewUserService(gormDB, fileStorage)
 	charSvc := character.NewCharacterService(gormDB, fileStorage)
 	authSvc := auth.NewAuthService(userSvc, &cfg.JWT)
-	h := handler.NewHandler(authSvc, charSvc, userSvc, fileStorage)
+	friendSvc := friend.NewService(gormDB)
+	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,fileStorage)
 	r := router.SetupRouter(h, cfg.JWT.AccessSecret, cfg.Server.Mode)
 
 	// 启动
