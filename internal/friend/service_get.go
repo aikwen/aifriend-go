@@ -1,8 +1,10 @@
 package friend
 
+import "context"
 
-func (s *friendService) GetList(userID uint, offset int, limit int) ([]FriendDTO, error) {
-	friendModels, err := s.store.getList(userID, offset, limit)
+
+func (s *friendService) GetList(ctx context.Context, userID uint, offset int, limit int) ([]FriendDTO, error) {
+	friendModels, err := s.store.getList(ctx, userID, offset, limit)
 	if err != nil {
 		return nil, err
 	}

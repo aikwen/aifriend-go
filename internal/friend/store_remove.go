@@ -1,14 +1,15 @@
 package friend
 
 import (
+	"context"
 	"errors"
 
 	"github.com/aikwen/aifriend-go/internal/models"
 )
 
 
-func (s *friendStore) remove(userID uint, friendID uint) error {
-	result := s.db.Where("id = ? AND user_id = ?", friendID, userID).Delete(&models.Friend{})
+func (s *friendStore) remove(ctx context.Context, userID uint, friendID uint) error {
+	result := s.db.WithContext(ctx).Where("id = ? AND user_id = ?", friendID, userID).Delete(&models.Friend{})
 
 	if result.Error != nil {
 		return result.Error

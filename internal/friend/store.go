@@ -1,15 +1,17 @@
 package friend
 
 import (
+	"context"
+
 	"github.com/aikwen/aifriend-go/internal/models"
 	"gorm.io/gorm"
 )
 
 
 type store interface {
-	getOrCreate(userID uint, characterID uint) (*models.Friend, error)
-	getList(userID uint, offset int, limit int) ([]models.Friend, error)
-	remove(userID uint, friendID uint) error
+	getOrCreate(ctx context.Context, userID uint, characterID uint) (*models.Friend, error)
+	getList(ctx context.Context, userID uint, offset int, limit int) ([]models.Friend, error)
+	remove(ctx context.Context, userID uint, friendID uint) error
 }
 
 type friendStore struct{

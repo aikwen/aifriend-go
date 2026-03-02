@@ -1,6 +1,7 @@
 package friend
 
 import (
+	"context"
 	"path"
 
 	"github.com/aikwen/aifriend-go/internal/models"
@@ -30,20 +31,26 @@ type FriendDTO struct {
 
 
 type Service interface {
-	GetOrCreate(userID uint, characterID uint) (*FriendDTO, error)
-	GetList(userID uint, offset int, limit int) ([]FriendDTO, error)
-	Remove(userID uint, friendID uint) error
+	GetOrCreate(ctx context.Context, userID uint, characterID uint) (*FriendDTO, error)
+	GetList(ctx context.Context, userID uint, offset int, limit int) ([]FriendDTO, error)
+	Remove(ctx context.Context, userID uint, friendID uint) error
+}
+
+type CharacterProvider interface {
+	Exist(ctx context.Context, characterID uint) (bool, error)
 }
 
 
 type friendService struct {
 	store store
+	charProvider CharacterProvider
 }
 
 // NewService 构造函数
-func NewService(db *gorm.DB) Service {
+func NewService(db *gorm.DB, charProvider CharacterProvider) Service {
 	return &friendService{
 		store: newFriendStore(db),
+		charProvider: charProvider,
 	}
 }
 
