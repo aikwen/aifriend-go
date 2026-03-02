@@ -35,7 +35,7 @@ func main(){
 	userSvc := user.NewUserService(gormDB, fileStorage)
 	charSvc := character.NewCharacterService(gormDB, fileStorage)
 	authSvc := auth.NewAuthService(userSvc, &cfg.JWT)
-	friendSvc := friend.NewService(gormDB)
+	friendSvc := friend.NewService(gormDB, charSvc)
 	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,fileStorage)
 	r := router.SetupRouter(h, cfg.JWT.AccessSecret, cfg.Server.Mode)
 
