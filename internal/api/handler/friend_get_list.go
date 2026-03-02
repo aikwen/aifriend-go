@@ -21,7 +21,7 @@ func (h *Handler) GetFriendList(c *gin.Context) {
 
 	userID := c.MustGet("userID").(uint)
 
-	friendsList, err := h.friendSvc.GetList(userID, offset, limit)
+	friendsList, err := h.friendSvc.GetList(c.Request.Context(), userID, offset, limit)
 	if err != nil {
 		log.Printf("[FriendGetList] failed: %v\n", err)
 		c.JSON(http.StatusOK, gin.H{"result": "系统异常"})

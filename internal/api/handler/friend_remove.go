@@ -20,7 +20,7 @@ func (h *Handler) RemoveFriend(c *gin.Context) {
 
 	userID := c.MustGet("userID").(uint)
 
-	err := h.friendSvc.Remove(userID, req.FriendID)
+	err := h.friendSvc.Remove(c.Request.Context(), userID, req.FriendID)
 	if err != nil {
 		log.Printf("[FriendRemove] failed: %v\n", err)
 		c.JSON(http.StatusOK, gin.H{"result": "系统异常，请稍后重试"})

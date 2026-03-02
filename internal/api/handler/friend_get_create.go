@@ -20,7 +20,7 @@ func (h *Handler) GetOrCreateFriend(c *gin.Context) {
 
 	userID := c.MustGet("userID").(uint)
 
-	friendDTO, err := h.friendSvc.GetOrCreate(userID, req.CharacterID)
+	friendDTO, err := h.friendSvc.GetOrCreate(c.Request.Context(), userID, req.CharacterID)
 	if err != nil {
 		log.Printf("[FriendGetOrCreate] failed: %v\n", err)
 		c.JSON(http.StatusOK, gin.H{"result": "系统异常，请稍后再试"})

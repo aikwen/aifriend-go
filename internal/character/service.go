@@ -48,6 +48,8 @@ type Service interface {
 
 	// 根据关键字搜索角色
 	SearchCharacters(ctx context.Context, offset int, limit int, searchQuery string) ([]*models.Character, error)
+
+	Exist(ctx context.Context, characterId uint) (bool, error)
 }
 
 // characterService 是 CharacterService 接口的具体实现
