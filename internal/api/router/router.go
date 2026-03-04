@@ -7,13 +7,14 @@ import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/aikwen/aifriend-go/internal/api/handler"
 	"github.com/aikwen/aifriend-go/internal/api/mw"
 )
 
 // SetupRouter
-func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engine {
-	if env == "prod" {
+func SetupRouter(h *handler.Handler, cfg *config.Config) *gin.Engine {
+	if cfg.Server.Mode == "prod" {
 		gin.SetMode(gin.ReleaseMode)
 	}
 
@@ -39,7 +40,7 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 	r.Static("/media", "./media")
 
 
-	if env == "dev" {
+	if cfg.Server.Mode == "dev" {
 		r.LoadHTMLFiles("web/index.html")
 		r.Static("/assets", "./web/assets")
 		r.StaticFile("/favicon.ico", "./web/favicon.ico")
@@ -70,12 +71,12 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 	{
 		// 公开接口区
 		accountGroup.POST("/login/", h.Login)
-		accountGroup.POST("/register/", h.Register)
+		accountGroup.POST("/register/", mw.RegisterBeforeCheck(cfg),h.Register)
 		accountGroup.POST("/refresh_token/", h.Refresh)
 
 		// protect 接口区
 		authRequiredGroup := accountGroup.Group("/")
-		authRequiredGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+		authRequiredGroup.Use(mw.JWTAuthMiddleware(cfg.JWT.AccessSecret))
 		{
 			authRequiredGroup.POST("/logout/", h.Logout)
 			authRequiredGroup.GET("/get_user_info/", h.GetUserInfo)
@@ -88,7 +89,7 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 
 		// protect 接口区域
 		authRequiredGroup := characterGroup.Group("/")
-		authRequiredGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+		authRequiredGroup.Use(mw.JWTAuthMiddleware(cfg.JWT.AccessSecret))
 		{
 			authRequiredGroup.POST("/create/", h.CreateCharacter)
 			authRequiredGroup.GET("/get_single/", h.GetCharacter)
@@ -98,7 +99,7 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 	}
 
 	profileGroup := r.Group("/api/user/profile")
-	profileGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+	profileGroup.Use(mw.JWTAuthMiddleware(cfg.JWT.AccessSecret))
 	{
 		profileGroup.POST("/update/", h.UpdateUserInfo)
 	}
@@ -112,7 +113,7 @@ func SetupRouter(h *handler.Handler, accessSecret string, env string) *gin.Engin
 	friendGroup := r.Group("/api/friend")
 	{
 		authRequiredGroup := friendGroup.Group("/")
-		authRequiredGroup.Use(mw.JWTAuthMiddleware(accessSecret))
+		authRequiredGroup.Use(mw.JWTAuthMiddleware(cfg.JWT.AccessSecret))
 		{
 			authRequiredGroup.POST("/get_or_create/", h.GetOrCreateFriend)
 			authRequiredGroup.POST("/remove/", h.RemoveFriend)

@@ -37,7 +37,7 @@ func main(){
 	authSvc := auth.NewAuthService(userSvc, &cfg.JWT)
 	friendSvc := friend.NewService(gormDB, charSvc)
 	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,fileStorage)
-	r := router.SetupRouter(h, cfg.JWT.AccessSecret, cfg.Server.Mode)
+	r := router.SetupRouter(h, cfg)
 
 	// 启动
 	log.Printf("🚀 服务启动成功！运行环境: %s, 监听端口: %s", cfg.Server.Mode, cfg.Server.Port)

@@ -1,13 +1,12 @@
 package config
 
-
 import (
 	"log"
 	"strings"
 
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 )
-
 
 // Config 全局配置根结构
 type Config struct {
@@ -19,6 +18,7 @@ type Config struct {
 type ServerConfig struct {
 	Port string `mapstructure:"port"`
 	Mode string `mapstructure:"mode"`
+	AllowRegister bool  `mapstructure:"allow_register"`
 }
 
 type DBConfig struct {
@@ -61,6 +61,17 @@ func LoadConfig() *Config {
 	if err := viper.Unmarshal(&config); err != nil {
 		log.Fatalf("配置解析失败: %v", err)
 	}
+
+	// 热更新
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		log.Printf("配置文件已修改: %s", e.Name)
+		if err := viper.Unmarshal(&config); err != nil {
+			log.Printf("热更新配置解析失败: %v", err)
+		} else {
+			log.Printf("配置已自动更新: %+v", config.Server)
+		}
+	})
+	viper.WatchConfig()
 
 	return &config
 }
