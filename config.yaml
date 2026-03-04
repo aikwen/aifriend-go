@@ -16,3 +16,8 @@ jwt:
   refresh_secret: "b2d4f6a8c0e213579bdf13579a8c6e4d2b0f1e3d5c7b9a0f2e4d6c8b0a1f3e5d"
   rotate_refresh_tokens: true
   blacklist_after_rotation: true
+
+# Prometheus 监控配置
+prometheus:
+  enable: true
+  http_addr: "127.0.0.1:8001"

@@ -13,6 +13,7 @@ type Config struct {
 	Server ServerConfig `mapstructure:"server"`
 	DB     DBConfig     `mapstructure:"db"`
 	JWT    JWTConfig    `mapstructure:"jwt"`
+	Prometheus PrometheusConfig `mapstructure:"prometheus"`
 }
 
 type ServerConfig struct {
@@ -36,6 +37,11 @@ type JWTConfig struct {
 
 }
 
+type PrometheusConfig struct {
+	Enable   bool   `mapstructure:"enable"`
+	HttpAddr string `mapstructure:"http_addr"`
+}
+
 // LoadConfig 读取配置并组装成 Struct
 func LoadConfig() *Config {
 	viper.SetConfigName("config")
@@ -45,6 +51,9 @@ func LoadConfig() *Config {
 	// 设置默认值
 	viper.SetDefault("server.port", ":8000")
 	viper.SetDefault("server.mode", "dev")
+
+	viper.SetDefault("prometheus.enable", true)
+	viper.SetDefault("prometheus.http_addr", "127.0.0.1:8001")
 
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
