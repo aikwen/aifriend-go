@@ -25,8 +25,6 @@ func SetupRouter(h *handler.Handler, cfg *config.Config) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"result": "系统异常"})
 	}))
 
-	r.Use(mw.PrometheusMiddleware())
-
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowCredentials = true
 
@@ -37,7 +35,13 @@ func SetupRouter(h *handler.Handler, cfg *config.Config) *gin.Engine {
 
 	corsConfig.AllowHeaders = []string{"Origin", "Content-Length", "Content-Type", "Authorization"}
 
+	// 跨域中间件
 	r.Use(cors.New(corsConfig))
+	// 服务是否开启
+	r.Use(mw.ServiceReadyCheck(cfg))
+	// 监控中间件
+	r.Use(mw.PrometheusMiddleware())
+
 	r.Static("/media", "./media")
 
 
