@@ -9,11 +9,12 @@ import (
 	"gorm.io/gorm"
 )
 
+var ErrUserAlreadyExists = errors.New("用户名已存在")
 
 func (as *authService) Register(ctx context.Context, username, password string) (*models.User, string, string, error) {
     _, err := as.userService.GetByUsername(ctx, username)
     if err == nil {
-        return nil, "", "", errors.New("用户名已存在")
+        return nil, "", "", ErrUserAlreadyExists
     }
 
     if !errors.Is(err, gorm.ErrRecordNotFound) {

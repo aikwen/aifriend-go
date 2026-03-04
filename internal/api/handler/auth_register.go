@@ -1,9 +1,11 @@
 package handler
 
 import (
+	"errors"
 	"net/http"
 	"strings"
 
+	"github.com/aikwen/aifriend-go/internal/auth"
 	"github.com/gin-gonic/gin"
 )
 
@@ -30,6 +32,11 @@ func (h *Handler) Register(c *gin.Context) {
 
 	user, access, refresh, err := h.authSvc.Register(c.Request.Context(), username, password)
 	if err != nil {
+		if errors.Is(err, auth.ErrUserAlreadyExists) {
+			c.JSON(http.StatusOK, gin.H{"result": err.Error()})
+			return
+		}
+
 		c.JSON(http.StatusInternalServerError, gin.H{"result": "注册失败", "message": err.Error()})
 		return
 	}

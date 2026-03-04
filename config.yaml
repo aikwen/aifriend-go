@@ -3,7 +3,7 @@ server:
   port: ":8000"
   # dev prod
   mode: "dev"
-  allow_register: false
+  allow_register: true
 
 db:
   mysql_dsn: "aifriends:123456@tcp(127.0.0.1:3306)/aifriends_db?charset=utf8mb4&parseTime=True&loc=Local"
