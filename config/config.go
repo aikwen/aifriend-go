@@ -20,6 +20,7 @@ type ServerConfig struct {
 	Port string `mapstructure:"port"`
 	Mode string `mapstructure:"mode"`
 	AllowRegister bool  `mapstructure:"allow_register"`
+	Enable        bool   `mapstructure:"enable"`
 }
 
 type DBConfig struct {
@@ -55,6 +56,8 @@ func LoadConfig() *Config {
 	viper.SetDefault("prometheus.enable", true)
 	viper.SetDefault("prometheus.http_addr", "127.0.0.1:8001")
 
+	viper.SetDefault("server.enable", true)
+	
 	viper.AutomaticEnv()
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
