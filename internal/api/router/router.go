@@ -25,6 +25,7 @@ func SetupRouter(h *handler.Handler, cfg *config.Config) *gin.Engine {
 		c.JSON(http.StatusOK, gin.H{"result": "系统异常"})
 	}))
 
+	r.Use(mw.PrometheusMiddleware())
 
 	corsConfig := cors.DefaultConfig()
 	corsConfig.AllowCredentials = true

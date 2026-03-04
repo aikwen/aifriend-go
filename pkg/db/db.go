@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm/logger"
 
 	"github.com/aikwen/aifriend-go/config"
+	"github.com/aikwen/aifriend-go/pkg/monitor"
 )
 
 // InitMySQL 初始化 MySQL 连接
@@ -55,5 +56,10 @@ func InitMySQL(cfg config.DBConfig, appEnv string) *gorm.DB {
 	// SetConnMaxLifetime 设置连接可复用的最大时间
 	sqlDB.SetConnMaxLifetime(time.Second * time.Duration(cfg.ConnMaxLifetime))
 
+	// 添加插件
+	if err := db.Use(&monitor.GormMetrics{}); err != nil {
+		log.Fatalf("注册 GORM 监控插件失败: %v", err)
+	}
+	log.Println("GORM Prometheus 监控插件挂载成功")
 	return db
 }

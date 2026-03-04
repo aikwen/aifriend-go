@@ -2,8 +2,6 @@ package main
 
 import (
 	"log"
-	"net/http"
-	"runtime/debug"
 
 	"github.com/aikwen/aifriend-go/config"
 	"github.com/aikwen/aifriend-go/internal/api/handler"
@@ -14,30 +12,15 @@ import (
 	"github.com/aikwen/aifriend-go/internal/models"
 	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/pkg/db"
+	"github.com/aikwen/aifriend-go/pkg/monitor"
 	"github.com/aikwen/aifriend-go/pkg/storage"
 
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
-func startMetricsServer(addr string) {
-	defer func() {
-		if r := recover(); r != nil {
-			log.Printf("[Panic] Prometheus 监控协程崩溃: %v\n堆栈信息: %s", r, debug.Stack())
-		}
-	}()
-
-	mux := http.NewServeMux()
-	// 挂载 Prometheus 指标接口
-	mux.Handle("/metrics", promhttp.Handler())
-
-	log.Printf("监控服务已启动，监听地址: http://%s/metrics (仅限本地访问)", addr)
-	if err := http.ListenAndServe(addr, mux); err != nil && err != http.ErrServerClosed {
-		log.Printf("[Error] Prometheus 监控服务器非正常退出: %v", err)
-	}
-}
 
 
 func main(){
+	monitor.Init()
 	// 加载环境变量
 	cfg := config.LoadConfig()
 	// 数据库
@@ -62,7 +45,7 @@ func main(){
 	r := router.SetupRouter(h, cfg)
 	// 启动 prometheus
 	if cfg.Prometheus.Enable {
-        go startMetricsServer(cfg.Prometheus.HttpAddr)
+        go monitor.StartMetricsServer(cfg.Prometheus.HttpAddr)
     }
 
 	// 启动
