@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,7 +29,7 @@ func (h *Handler) Login(c *gin.Context) {
 		return
 	}
 
-	user, accessToken, refreshToken, err := h.authSvc.Login(c.Request.Context(), username, password)
+	user, accessToken, refreshToken, err := h.authSvc.Login(c.Request.Context(), username, password, &config.GlobalConfig.JWT)
 	if err != nil {
 		c.JSON(http.StatusOK, gin.H{"result": err.Error()})
 		return

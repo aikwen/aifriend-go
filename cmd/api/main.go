@@ -38,11 +38,11 @@ func main(){
 	fileStorage := storage.NewLocalStorage("media")
 	userSvc := user.NewUserService(gormDB, fileStorage)
 	charSvc := character.NewCharacterService(gormDB, fileStorage)
-	authSvc := auth.NewAuthService(userSvc, &cfg.JWT)
+	authSvc := auth.NewAuthService(userSvc)
 	friendSvc := friend.NewService(gormDB, charSvc)
 	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,fileStorage)
 	// 初始化路由
-	r := router.SetupRouter(h, cfg)
+	r := router.SetupRouter(h)
 	// 启动 prometheus
 	if cfg.Prometheus.Enable {
         go monitor.StartMetricsServer(cfg.Prometheus.HttpAddr)

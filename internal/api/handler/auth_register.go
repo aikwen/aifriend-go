@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/aikwen/aifriend-go/internal/auth"
 	"github.com/gin-gonic/gin"
 )
@@ -30,7 +31,7 @@ func (h *Handler) Register(c *gin.Context) {
 		return
 	}
 
-	user, access, refresh, err := h.authSvc.Register(c.Request.Context(), username, password)
+	user, access, refresh, err := h.authSvc.Register(c.Request.Context(), username, password, &config.GlobalConfig.JWT)
 	if err != nil {
 		if errors.Is(err, auth.ErrUserAlreadyExists) {
 			c.JSON(http.StatusOK, gin.H{"result": err.Error()})

@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/aikwen/aifriend-go/internal/models"
 	"github.com/aikwen/aifriend-go/pkg/auth"
 	"gorm.io/gorm"
 )
 
 
-func (as *authService) Login(ctx context.Context, username, password string) (*models.User, string, string, error){
+func (as *authService) Login(ctx context.Context, username, password string, jwtConf *config.JWTConfig) (*models.User, string, string, error){
     user, err := as.userService.GetByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -27,12 +28,12 @@ func (as *authService) Login(ctx context.Context, username, password string) (*m
 		return nil, "", "", errors.New("用户名或密码错误")
 	}
 
-    accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, []byte(as.jwtConf.AccessSecret))
+    accessToken, err := auth.GenerateAccessToken(user.Username, user.ID, []byte(jwtConf.AccessSecret))
     if err != nil {
 		return nil, "", "", errors.New("颁发 AccessToken 失败")
 	}
 
-    refreshToken, err := auth.GenerateRefreshToken(user.Username, user.ID, []byte(as.jwtConf.RefreshSecret))
+    refreshToken, err := auth.GenerateRefreshToken(user.Username, user.ID, []byte(jwtConf.RefreshSecret))
 	if err != nil {
 		return nil, "", "", errors.New("颁发 RefreshToken 失败")
 	}

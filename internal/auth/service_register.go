@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/aikwen/aifriend-go/internal/models"
 	"github.com/aikwen/aifriend-go/pkg/auth"
 	"gorm.io/gorm"
@@ -11,7 +12,7 @@ import (
 
 var ErrUserAlreadyExists = errors.New("用户名已存在")
 
-func (as *authService) Register(ctx context.Context, username, password string) (*models.User, string, string, error) {
+func (as *authService) Register(ctx context.Context, username, password string, jwtConf *config.JWTConfig) (*models.User, string, string, error) {
     _, err := as.userService.GetByUsername(ctx, username)
     if err == nil {
         return nil, "", "", ErrUserAlreadyExists
@@ -34,11 +35,11 @@ func (as *authService) Register(ctx context.Context, username, password string) 
         return nil, "", "", err
     }
 
-    accessToken, err := auth.GenerateAccessToken(newUser.Username, newUser.ID, []byte(as.jwtConf.AccessSecret))
+    accessToken, err := auth.GenerateAccessToken(newUser.Username, newUser.ID, []byte(jwtConf.AccessSecret))
     if err != nil {
         return nil, "", "", err
     }
-    refreshToken, err := auth.GenerateRefreshToken(newUser.Username, newUser.ID, []byte(as.jwtConf.RefreshSecret))
+    refreshToken, err := auth.GenerateRefreshToken(newUser.Username, newUser.ID, []byte(jwtConf.RefreshSecret))
     if err != nil {
         return nil, "", "", err
     }

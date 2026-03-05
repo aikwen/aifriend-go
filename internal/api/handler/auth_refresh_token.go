@@ -3,6 +3,7 @@ package handler
 import (
 	"net/http"
 
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,7 +17,7 @@ func (h *Handler) Refresh(c *gin.Context) {
 		return
 	}
 
-	newAccess, newRefresh, err := h.authSvc.RefreshToken(c.Request.Context(), refreshToken)
+	newAccess, newRefresh, err := h.authSvc.RefreshToken(c.Request.Context(), refreshToken, &config.GlobalConfig.JWT)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{
 			"result": "refresh token 过期了",

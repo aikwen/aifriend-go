@@ -5,13 +5,15 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gin-gonic/gin"
+	"github.com/aikwen/aifriend-go/config"
 	"github.com/aikwen/aifriend-go/pkg/auth"
+	"github.com/gin-gonic/gin"
 )
 
 // JWTAuthMiddleware 拦截并校验请求头中的 JWT 令牌
-func JWTAuthMiddleware(secret string) gin.HandlerFunc {
+func JWTAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		secret := config.GlobalConfig.JWT.AccessSecret
 		authHeader := c.GetHeader("Authorization")
 		if authHeader == "" {
 			c.JSON(http.StatusUnauthorized, gin.H{"result": "未提供认证信息"})

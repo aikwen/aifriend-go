@@ -8,9 +8,9 @@ import (
 )
 
 type Service interface {
-	Login(ctx context.Context, username, password string) (*models.User, string, string, error)
-	Register(ctx context.Context, username, password string) (*models.User, string, string, error)
-	RefreshToken(ctx context.Context, refreshTokenString string) (string, string, error)
+	Login(ctx context.Context, username, password string, jwtConf *config.JWTConfig) (*models.User, string, string, error)
+	Register(ctx context.Context, username, password string, jwtConf *config.JWTConfig) (*models.User, string, string, error)
+	RefreshToken(ctx context.Context, refreshTokenString string, jwtConf *config.JWTConfig) (string, string, error)
 }
 
 type userService interface {
@@ -21,12 +21,10 @@ type userService interface {
 
 type authService struct {
 	userService userService
-	jwtConf     *config.JWTConfig
 }
 
-func NewAuthService(us userService, jwtConf *config.JWTConfig) Service {
+func NewAuthService(us userService) Service {
 	return &authService{
 		userService: us,
-		jwtConf:     jwtConf,
 	}
 }

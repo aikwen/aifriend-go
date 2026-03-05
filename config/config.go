@@ -5,8 +5,13 @@ import (
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
+	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 )
+
+
+var GlobalConfig = &Config{}
+
 
 // Config 全局配置根结构
 type Config struct {
@@ -45,9 +50,9 @@ type PrometheusConfig struct {
 
 // LoadConfig 读取配置并组装成 Struct
 func LoadConfig() *Config {
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
+	if err := godotenv.Load(); err != nil {
+        log.Println("未找到 .env 文件，将仅使用 config.yaml 和系统环境变量")
+    }
 
 	// 设置默认值
 	viper.SetDefault("server.port", ":8000")
@@ -57,33 +62,42 @@ func LoadConfig() *Config {
 	viper.SetDefault("prometheus.http_addr", "127.0.0.1:8001")
 
 	viper.SetDefault("server.enable", true)
-	
-	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
+	// 读取config.yaml
+	viper.SetConfigName("config")
+	viper.SetConfigType("yaml")
+	viper.AddConfigPath(".")
 	if err := viper.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
-			log.Println("警告: 未找到 config.yaml 配置文件，将完全依赖环境变量")
+			log.Printf("警告: 未找到 config.yaml (%v)", err)
 		} else {
 			log.Fatalf("读取配置文件失败: %v", err)
 		}
 	}
 
-	var config Config
-	if err := viper.Unmarshal(&config); err != nil {
+	// 读取系统环境变量
+	viper.AutomaticEnv()
+	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+
+	// 配置文件重新指向 config.yaml
+	viper.SetConfigFile("config.yaml")
+
+	if err := viper.Unmarshal(GlobalConfig); err != nil {
 		log.Fatalf("配置解析失败: %v", err)
 	}
 
 	// 热更新
 	viper.OnConfigChange(func(e fsnotify.Event) {
 		log.Printf("配置文件已修改: %s", e.Name)
-		if err := viper.Unmarshal(&config); err != nil {
+		newConf := &Config{}
+		if err := viper.Unmarshal(newConf); err != nil {
 			log.Printf("热更新配置解析失败: %v", err)
 		} else {
-			log.Printf("配置已自动更新: %+v", config.Server)
+			GlobalConfig = newConf
+			log.Printf("配置已自动更新: %+v", GlobalConfig.Server)
 		}
 	})
 	viper.WatchConfig()
 
-	return &config
+	return GlobalConfig
 }
