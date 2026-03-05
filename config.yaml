@@ -4,19 +4,19 @@ server:
   # dev prod
   mode: "dev"
   allow_register: true
-  enable: true # 全局服务开关
+  # 全局服务开关
+  enable: true
 
 db:
-  # mysql 账号密码
-  mysql_dsn: "aifriends:123456@tcp(127.0.0.1:3306)/aifriends_db?charset=utf8mb4&parseTime=True&loc=Local"
+  mysql_dsn:
   max_open_conns: 100
   max_idle_conns: 10
   conn_max_lifetime: 3600 # 秒
 
 jwt:
   # 测试密钥
-  access_secret: "8f3a9d1b6e4c2f0a5d8b7e3c9a1f4b2d6e8c0a3f5b7d9e1a2c4f6b8d0e3a5c7f"
-  refresh_secret: "b2d4f6a8c0e213579bdf13579a8c6e4d2b0f1e3d5c7b9a0f2e4d6c8b0a1f3e5d"
+  access_secret:
+  refresh_secret:
   rotate_refresh_tokens: true
   blacklist_after_rotation: true
 
