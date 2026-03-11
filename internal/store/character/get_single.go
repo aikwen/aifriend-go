@@ -3,11 +3,11 @@ package character
 import (
 	"context"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
-// getByIDAndAuthor 获取单个角色
-func (s *characterStore) getByIDAndAuthor(ctx context.Context, id uint, authorID uint) (*models.Character, error) {
+// GetByIDAndAuthor 获取单个角色
+func (s *characterStore) GetByIDAndAuthor(ctx context.Context, id uint, authorID uint) (*models.Character, error) {
 	var c models.Character
 	// 获取对应的authorId下的character id
 	err := s.db.WithContext(ctx).

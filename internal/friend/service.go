@@ -4,8 +4,8 @@ import (
 	"context"
 	"path"
 
-	"github.com/aikwen/aifriend-go/internal/models"
-	"gorm.io/gorm"
+	"github.com/aikwen/aifriend-go/internal/store"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
 
@@ -36,21 +36,14 @@ type Service interface {
 	Remove(ctx context.Context, userID uint, friendID uint) error
 }
 
-type CharacterProvider interface {
-	Exist(ctx context.Context, characterID uint) (bool, error)
-}
-
-
 type friendService struct {
-	store store
-	charProvider CharacterProvider
+	database  *store.Database
 }
 
 // NewService 构造函数
-func NewService(db *gorm.DB, charProvider CharacterProvider) Service {
+func NewService(database  *store.Database) Service {
 	return &friendService{
-		store: newFriendStore(db),
-		charProvider: charProvider,
+		database: database,
 	}
 }
 

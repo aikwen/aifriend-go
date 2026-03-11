@@ -3,11 +3,10 @@ package friend
 import (
 	"context"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
-
-func (s *friendStore) getOrCreate(ctx context.Context, userID uint, characterID uint) (*models.Friend, error) {
+func (s *friendStore) GetOrCreate(ctx context.Context, userID uint, characterID uint) (*models.Friend, error) {
 	var friend models.Friend
 
 	// 根据 Where 里的条件去查，查不到就用 Where 里的条件做初始化并插入

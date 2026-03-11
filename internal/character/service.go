@@ -3,9 +3,9 @@ package character
 import (
 	"context"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 	"github.com/aikwen/aifriend-go/pkg/storage"
-	"gorm.io/gorm"
 )
 
 // CreateCharacterParam 包含创建角色所需的全部基础信息。
@@ -52,16 +52,16 @@ type Service interface {
 	Exist(ctx context.Context, characterId uint) (bool, error)
 }
 
-// characterService 是 CharacterService 接口的具体实现
+// characterService .
 type characterService struct {
-	characterStore store
-	storage        storage.Storage
+	database  *store.Database
+	storage   storage.Storage
 }
 
-// NewCharacterService 实例化角色服务
-func NewCharacterService(db *gorm.DB, st storage.Storage) Service {
+// NewCharacterService .
+func NewCharacterService(database *store.Database, st storage.Storage) Service {
 	return &characterService{
-		characterStore: newCharacterStore(db),
+		database: database,
 		storage:        st,
 	}
 }

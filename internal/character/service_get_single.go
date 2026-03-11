@@ -3,10 +3,10 @@
  import (
 	"context"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
 // GetCharacter 根据角色 ID 获取单个AI角色的详细信息
 func (s *characterService) GetCharacter(ctx context.Context, id uint, authorID uint) (*models.Character, error) {
-	return s.characterStore.getByIDAndAuthor(ctx, id, authorID)
+	return s.database.Character.GetByIDAndAuthor(ctx, id, authorID)
 }

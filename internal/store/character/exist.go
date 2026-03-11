@@ -3,11 +3,10 @@ package character
 import (
 	"context"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
-
-func (cs *characterStore) exist(ctx context.Context, characterId uint) (bool, error){
+func (cs *characterStore) Exist(ctx context.Context, characterId uint) (bool, error) {
 	var count int64
 	err := cs.db.Model(&models.Character{}).WithContext(ctx).Where("id = ?", characterId).Count(&count).Error
 	if err != nil {

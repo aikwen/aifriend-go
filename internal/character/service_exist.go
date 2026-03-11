@@ -8,5 +8,5 @@ func (cs *characterService) Exist(ctx context.Context, characterId uint) (bool, 
 		return false, nil
 	}
 
-	return cs.characterStore.exist(ctx, characterId)
+	return cs.database.Character.Exist(ctx, characterId)
 }

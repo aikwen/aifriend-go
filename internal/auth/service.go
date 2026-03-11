@@ -4,7 +4,8 @@ import (
 	"context"
 
 	"github.com/aikwen/aifriend-go/config"
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
 type Service interface {
@@ -13,18 +14,13 @@ type Service interface {
 	RefreshToken(ctx context.Context, refreshTokenString string, jwtConf *config.JWTConfig) (string, string, error)
 }
 
-type userService interface {
-	Create(ctx context.Context, user *models.User) error
-	GetByUsername(ctx context.Context, username string) (*models.User, error)
-	GetByID(ctx context.Context, id uint) (*models.User, error)
-}
 
 type authService struct {
-	userService userService
+	database *store.Database
 }
 
-func NewAuthService(us userService) Service {
+func NewAuthService(database *store.Database) Service {
 	return &authService{
-		userService: us,
+		database: database,
 	}
 }

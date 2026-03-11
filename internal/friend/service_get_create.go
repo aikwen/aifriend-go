@@ -13,7 +13,7 @@ func (s *friendService) GetOrCreate(ctx context.Context, userID uint, characterI
 	}
 
 	// 查询虚拟角色是否存在
-	exists, err := s.charProvider.Exist(ctx, characterID)
+	exists, err := s.database.Character.Exist(ctx, characterID)
 	if err != nil {
 		return nil, err // 数据库查询异常
 	}
@@ -22,7 +22,7 @@ func (s *friendService) GetOrCreate(ctx context.Context, userID uint, characterI
 	}
 
 	// 虚拟角色存在才进行下一步
-	friendModel, err := s.store.getOrCreate(ctx, userID, characterID)
+	friendModel, err := s.database.Friend.GetOrCreate(ctx, userID, characterID)
 	if err != nil {
 		return nil, err
 	}

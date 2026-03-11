@@ -5,13 +5,13 @@ import (
 	"context"
 	"errors"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 	"gorm.io/gorm"
 )
 
 
 func (s *userService) GetUserInfo(ctx context.Context, userID uint) (*models.User, error) {
-    user, err := s.userStore.getByID(ctx, userID)
+    user, err := s.database.User.GetByID(ctx, userID)
     if err != nil {
         if errors.Is(err, gorm.ErrRecordNotFound) {
             return nil, errors.New("用户不存在")
@@ -23,10 +23,10 @@ func (s *userService) GetUserInfo(ctx context.Context, userID uint) (*models.Use
 
 
 func (s *userService) GetByUsername(ctx context.Context, username string) (*models.User, error) {
-    return s.userStore.getByUsername(ctx, username)
+    return s.database.User.GetByUsername(ctx, username)
 }
 
 
 func (s *userService) GetByID(ctx context.Context, id uint) (*models.User, error) {
-    return s.userStore.getByID(ctx, id)
+    return s.database.User.GetByID(ctx, id)
 }

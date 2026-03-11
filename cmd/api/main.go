@@ -9,12 +9,12 @@ import (
 	"github.com/aikwen/aifriend-go/internal/auth"
 	"github.com/aikwen/aifriend-go/internal/character"
 	"github.com/aikwen/aifriend-go/internal/friend"
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
+	"github.com/aikwen/aifriend-go/internal/store"
 	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/pkg/db"
 	"github.com/aikwen/aifriend-go/pkg/monitor"
 	"github.com/aikwen/aifriend-go/pkg/storage"
-
 )
 
 
@@ -36,10 +36,11 @@ func main(){
 
 	// 依赖注入
 	fileStorage := storage.NewLocalStorage("media")
-	userSvc := user.NewUserService(gormDB, fileStorage)
-	charSvc := character.NewCharacterService(gormDB, fileStorage)
-	authSvc := auth.NewAuthService(userSvc)
-	friendSvc := friend.NewService(gormDB, charSvc)
+	database := store.NewDatabase(gormDB)
+	userSvc := user.NewUserService(database, fileStorage)
+	charSvc := character.NewCharacterService(database, fileStorage)
+	authSvc := auth.NewAuthService(database)
+	friendSvc := friend.NewService(database)
 	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,fileStorage)
 	// 初始化路由
 	r := router.SetupRouter(h)

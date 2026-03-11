@@ -5,13 +5,13 @@ import (
 	"context"
 	"errors"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 	"gorm.io/gorm"
 )
 
 
 func (s *userService) UpdateUserInfo(ctx context.Context, userID uint, newUsername, newProfile, newPhoto string) (*models.User, error){
-    currentUser, err := s.userStore.getByID(ctx, userID)
+    currentUser, err := s.database.User.GetByID(ctx, userID)
 
     if err != nil {
 	    if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -22,7 +22,7 @@ func (s *userService) UpdateUserInfo(ctx context.Context, userID uint, newUserna
 
     // 检查用户名是否被占用，没有占用就更新用户名
     if newUsername != currentUser.Username {
-        existingUser, err := s.userStore.getByUsername(ctx, newUsername)
+        existingUser, err := s.database.User.GetByUsername(ctx, newUsername)
         if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, errors.New("检查用户名时发生数据库错误")
 		}
@@ -49,7 +49,7 @@ func (s *userService) UpdateUserInfo(ctx context.Context, userID uint, newUserna
         currentUser.Photo = newPhoto
 	}
 
-    if err := s.userStore.update(ctx, currentUser); err != nil {
+    if err := s.database.User.Update(ctx, currentUser); err != nil {
 		return nil, errors.New("保存用户信息失败")
 	}
 

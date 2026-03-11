@@ -22,7 +22,7 @@ func (as *authService) RefreshToken(ctx context.Context, refreshTokenString stri
     }
     userID := uint(userID64)
 
-    user, err := as.userService.GetByID(ctx, userID)
+    user, err := as.database.User.GetByID(ctx, userID)
 	if err != nil {
 		return "", "", errors.New("用户不存在或状态异常")
 	}

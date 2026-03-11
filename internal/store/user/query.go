@@ -4,12 +4,12 @@ import (
 	"context"
 	"errors"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 	"gorm.io/gorm"
 )
 
-// getByUsername 根据用户名查询
-func (us *userStore) getByUsername(ctx context.Context, username string) (*models.User, error){
+// GetByUsername 根据用户名查询
+func (us *userStore) GetByUsername(ctx context.Context, username string) (*models.User, error) {
 	var user models.User
 	err := us.db.WithContext(ctx).Where("username = ?", username).First(&user).Error
 	if err != nil {
@@ -24,9 +24,9 @@ func (us *userStore) getByUsername(ctx context.Context, username string) (*model
 	return &user, nil
 }
 
-// getByID 根据用户id查询
-func (us *userStore) getByID(ctx context.Context, id uint) (*models.User, error){
+// GetByID 根据用户id查询
+func (us *userStore) GetByID(ctx context.Context, id uint) (*models.User, error) {
 	var user models.User
-    err := us.db.WithContext(ctx).First(&user, id).Error
-    return &user, err
+	err := us.db.WithContext(ctx).First(&user, id).Error
+	return &user, err
 }

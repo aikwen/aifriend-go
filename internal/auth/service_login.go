@@ -5,14 +5,14 @@ import (
 	"errors"
 
 	"github.com/aikwen/aifriend-go/config"
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 	"github.com/aikwen/aifriend-go/pkg/auth"
 	"gorm.io/gorm"
 )
 
 
 func (as *authService) Login(ctx context.Context, username, password string, jwtConf *config.JWTConfig) (*models.User, string, string, error){
-    user, err := as.userService.GetByUsername(ctx, username)
+    user, err := as.database.User.GetByUsername(ctx, username)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil, "", "", errors.New("用户名或密码错误")

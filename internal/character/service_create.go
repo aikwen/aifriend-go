@@ -5,7 +5,7 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/aikwen/aifriend-go/internal/models"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
 // CreateCharacter 为指定的用户创建一个新的 AI 角色
@@ -28,5 +28,5 @@ func (s *characterService) CreateCharacter(ctx context.Context, param *CreateCha
 		BackgroundImage: param.BgImagePath,
 	}
 
-	return s.characterStore.create(ctx, char)
+	return s.database.Character.Create(ctx, char)
 }

@@ -9,7 +9,7 @@ import (
 
 // UpdateCharacter 更新指定角色的信息，并处理旧图片的物理删除
 func (s *characterService) UpdateCharacter(ctx context.Context, param *UpdateCharacterParam) error {
-	char, err := s.characterStore.getByIDAndAuthor(ctx, param.ID, param.AuthorID)
+	char, err := s.database.Character.GetByIDAndAuthor(ctx, param.ID, param.AuthorID)
 	if err != nil {
 		return err // 找不到或不属于该用户
 	}
@@ -43,5 +43,5 @@ func (s *characterService) UpdateCharacter(ctx context.Context, param *UpdateCha
 		char.BackgroundImage = param.BgImagePath
 	}
 
-	return s.characterStore.update(ctx, char)
+	return s.database.Character.Update(ctx, char)
 }
