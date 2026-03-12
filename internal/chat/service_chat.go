@@ -36,21 +36,33 @@ func (c *chatService) Chat(
 			if chunk == "" {
 				return
 			}
-			ch <- StreamEvent{
+			// 往 chan 写入数据
+			select {
+			case ch <- StreamEvent{
 				Type: EventDelta,
 				Text: chunk,
+			}:
+			case <-ctx.Done():
+				return
 			}
 		})
+
 		if err != nil {
-			ch <- StreamEvent{
+			select {
+			case ch <- StreamEvent{
 				Type: EventError,
 				Text: err.Error(),
+			}:
+			case <-ctx.Done():
 			}
 			return
 		}
 
-		ch <- StreamEvent{
+		select {
+		case ch <- StreamEvent{
 			Type: EventDone,
+		}:
+		case <-ctx.Done():
 		}
 	}()
 
