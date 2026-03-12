@@ -24,3 +24,9 @@ jwt:
 prometheus:
   enable: true
   http_addr: "127.0.0.1:8001"
+
+llm:
+  # .env 文件配置
+  api_key:
+  api_base:
+  model_name: "deepseek-v3.2"
