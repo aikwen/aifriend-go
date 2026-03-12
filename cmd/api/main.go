@@ -8,18 +8,17 @@ import (
 	"github.com/aikwen/aifriend-go/internal/api/router"
 	"github.com/aikwen/aifriend-go/internal/auth"
 	"github.com/aikwen/aifriend-go/internal/character"
+	"github.com/aikwen/aifriend-go/internal/chat"
 	"github.com/aikwen/aifriend-go/internal/friend"
-	"github.com/aikwen/aifriend-go/internal/store/models"
 	"github.com/aikwen/aifriend-go/internal/store"
+	"github.com/aikwen/aifriend-go/internal/store/models"
 	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/pkg/db"
 	"github.com/aikwen/aifriend-go/pkg/monitor"
 	"github.com/aikwen/aifriend-go/pkg/storage"
 )
 
-
-
-func main(){
+func main() {
 	monitor.Init()
 	// 加载环境变量
 	cfg := config.LoadConfig()
@@ -28,8 +27,11 @@ func main(){
 
 	log.Println("正在进行数据库迁移...")
 	if err := gormDB.AutoMigrate(&models.User{},
-		 &models.Character{},
-		 &models.Friend{}); err != nil {
+		&models.Character{},
+		&models.Friend{},
+		&models.Message{},
+		//&models.SystemPrompt{},
+		); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
 	log.Println("数据库迁移结束...")
@@ -40,14 +42,18 @@ func main(){
 	userSvc := user.NewUserService(database, fileStorage)
 	charSvc := character.NewCharacterService(database, fileStorage)
 	authSvc := auth.NewAuthService(database)
-	friendSvc := friend.NewService(database)
-	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,fileStorage)
+	friendSvc := friend.NewFriendService(database)
+	chatSvc, err := chat.NewChatService(database)
+	if err != nil {
+		log.Fatal("chatSvc init error", err)
+	}
+	h := handler.NewHandler(authSvc, charSvc, userSvc, friendSvc,chatSvc, fileStorage)
 	// 初始化路由
 	r := router.SetupRouter(h)
 	// 启动 prometheus
 	if cfg.Prometheus.Enable {
-        go monitor.StartMetricsServer(cfg.Prometheus.HttpAddr)
-    }
+		go monitor.StartMetricsServer(cfg.Prometheus.HttpAddr)
+	}
 
 	// 启动
 	log.Printf("🚀 服务启动成功！运行环境: %s, 监听端口: %s", cfg.Server.Mode, cfg.Server.Port)
