@@ -19,6 +19,7 @@ type Config struct {
 	DB     DBConfig     `mapstructure:"db"`
 	JWT    JWTConfig    `mapstructure:"jwt"`
 	Prometheus PrometheusConfig `mapstructure:"prometheus"`
+	LLM        LLMConfig        `mapstructure:"llm"`
 }
 
 type ServerConfig struct {
@@ -40,12 +41,17 @@ type JWTConfig struct {
 	RefreshSecret          string `mapstructure:"refresh_secret"`
 	RotateRefreshTokens    bool   `mapstructure:"rotate_refresh_tokens"`
 	BlacklistAfterRotation bool   `mapstructure:"blacklist_after_rotation"`
-
 }
 
 type PrometheusConfig struct {
 	Enable   bool   `mapstructure:"enable"`
 	HttpAddr string `mapstructure:"http_addr"`
+}
+
+type LLMConfig struct {
+    APIKey  string `mapstructure:"api_key"`
+    APIBase string `mapstructure:"api_base"`
+	ModelName string `mapstructure:"model_name"`
 }
 
 // LoadConfig 读取配置并组装成 Struct
