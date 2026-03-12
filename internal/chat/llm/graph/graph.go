@@ -78,6 +78,12 @@ func (g *Graph) Run(
 	}
 
 	for step := 0; step < g.maxSteps; step++ {
+		select {
+		case <-ctx.Done():
+			return nil, ctx.Err()
+		default:
+		}
+
 		assistantMsg, err := g.StreamAndCollect(ctx, messages, onChunk)
 		if err != nil {
 			return nil, fmt.Errorf("model stream failed at step %d: %w", step+1, err)
@@ -95,6 +101,11 @@ func (g *Graph) Run(
 
 		// 执行 tool calls
 		for _, tc := range assistantMsg.ToolCalls {
+			select {
+			case <-ctx.Done():
+				return nil, ctx.Err()
+			default:
+			}
 			toolName := tc.Function.Name
 			toolArgs := tc.Function.Arguments
 
