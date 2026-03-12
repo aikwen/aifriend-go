@@ -126,5 +126,15 @@ func SetupRouter(h *handler.Handler) *gin.Engine {
 		}
 	}
 
+	chatGroup := r.Group("/api/friend/message")
+	{
+		authRequiredGroup := chatGroup.Group("/")
+		authRequiredGroup.Use(mw.JWTAuthMiddleware())
+		{
+			authRequiredGroup.POST("/chat/", h.Chat)
+			authRequiredGroup.GET("/get_history/", h.GetChatHistory)
+		}
+	}
+
 	return r
 }
