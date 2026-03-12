@@ -37,11 +37,11 @@ func (h *Handler) Chat(c *gin.Context) {
 
 	req.Message = strings.TrimSpace(req.Message)
 	if req.FriendID == 0 {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "好友参数错误"})
+		c.JSON(http.StatusOK, gin.H{"detail": "好友参数错误"})
 		return
 	}
 	if req.Message == "" {
-		c.JSON(http.StatusBadRequest, gin.H{"detail": "消息不能为空"})
+		c.JSON(http.StatusOK, gin.H{"detail": "消息不能为空"})
 		return
 	}
 
