@@ -8,7 +8,6 @@ import (
 	"github.com/aikwen/aifriend-go/internal/store/models"
 )
 
-
 type AuthorDTO struct {
 	UserID   uint   `json:"user_id"`
 	Username string `json:"username"`
@@ -29,7 +28,6 @@ type FriendDTO struct {
 	Character CharacterDTO `json:"character"`
 }
 
-
 type Service interface {
 	GetOrCreate(ctx context.Context, userID uint, characterID uint) (*FriendDTO, error)
 	GetList(ctx context.Context, userID uint, offset int, limit int) ([]FriendDTO, error)
@@ -37,16 +35,15 @@ type Service interface {
 }
 
 type friendService struct {
-	database  *store.Database
+	database *store.Database
 }
 
-// NewService 构造函数
-func NewService(database  *store.Database) Service {
+// NewFriendService 构造函数
+func NewFriendService(database *store.Database) Service {
 	return &friendService{
 		database: database,
 	}
 }
-
 
 func (s *friendService) convertToDTO(friend *models.Friend) FriendDTO {
 	return FriendDTO{
