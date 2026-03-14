@@ -7,6 +7,6 @@ import (
 )
 
 
-func (m *messageStore) Create(ctx context.Context, message models.Message) error {
+func (m *messageStore) Create(ctx context.Context, message *models.Message) error {
 	return m.db.WithContext(ctx).Create(message).Error
 }
