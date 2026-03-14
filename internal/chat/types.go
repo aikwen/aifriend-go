@@ -8,14 +8,7 @@ const (
     EventError EventType = "error"
 )
 
-type Usage struct {
-    InputTokens  int
-    OutputTokens int
-    TotalTokens  int
-}
-
 type StreamEvent struct {
     Type  EventType
     Text  string
-    Usage *Usage
 }
