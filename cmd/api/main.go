@@ -30,6 +30,7 @@ func main() {
 		&models.Character{},
 		&models.Friend{},
 		&models.Message{},
+		&models.SystemPrompt{},
 		//&models.SystemPrompt{},
 		); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
