@@ -19,3 +19,16 @@ func (s *characterStore) GetByIDAndAuthor(ctx context.Context, id uint, authorID
 	}
 	return &c, nil
 }
+
+func (c *characterStore) GetByID(ctx context.Context, id uint) (*models.Character, error) {
+	var character models.Character
+
+	err := c.db.WithContext(ctx).
+		Where("id = ?", id).
+		First(&character).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return &character, nil
+}
