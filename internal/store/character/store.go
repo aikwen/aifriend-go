@@ -15,6 +15,7 @@ type Store interface {
 	GetListByAuthorID(ctx context.Context, authorID uint, offset int, limit int) ([]*models.Character, error)
 	GetListBySearchQuery(ctx context.Context, offset int, limit int, searchQuery string) ([]*models.Character, error)
 	Exist(ctx context.Context, characterID uint) (bool, error)
+	GetByID(ctx context.Context, id uint) (*models.Character, error)
 }
 
 type characterStore struct {
