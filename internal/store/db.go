@@ -3,11 +3,12 @@ package store
 import (
 	"gorm.io/gorm"
 
+	"github.com/aikwen/aifriend-go/internal/store/cache"
 	"github.com/aikwen/aifriend-go/internal/store/character"
 	"github.com/aikwen/aifriend-go/internal/store/friend"
-	"github.com/aikwen/aifriend-go/internal/store/user"
 	"github.com/aikwen/aifriend-go/internal/store/message"
 	"github.com/aikwen/aifriend-go/internal/store/systemprompt"
+	"github.com/aikwen/aifriend-go/internal/store/user"
 )
 
 
@@ -19,6 +20,7 @@ type Database struct{
 	User      user.Store
 	Message   message.Store
 	SystemPrompt systemprompt.Store
+	Cache        *cache.Cache
 }
 
 
@@ -30,5 +32,6 @@ func NewDatabase(db *gorm.DB) *Database {
 		User: user.NewUserStore(db),
 		Message: message.NewMessageStore(db),
 		SystemPrompt: systemprompt.NewSystemPromptStore(db),
+		Cache: cache.New(),
 	}
 }
