@@ -9,7 +9,7 @@ import (
 
 
 type Store interface {
-	Create(ctx context.Context, message models.Message) error
+	Create(ctx context.Context, message *models.Message) error
 	GetRecentList(ctx context.Context, friendID uint, lastMessageID uint, userID uint, num int) ([]models.Message, error)
 }
 
