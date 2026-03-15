@@ -11,7 +11,6 @@ import (
 	"github.com/aikwen/aifriend-go/internal/chat"
 	"github.com/aikwen/aifriend-go/internal/friend"
 	"github.com/aikwen/aifriend-go/internal/store"
-	"github.com/aikwen/aifriend-go/internal/store/models"
 	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/pkg/db"
 	"github.com/aikwen/aifriend-go/pkg/monitor"
@@ -26,13 +25,7 @@ func main() {
 	gormDB := db.InitMySQL(cfg.DB, cfg.Server.Mode)
 
 	log.Println("正在进行数据库迁移...")
-	if err := gormDB.AutoMigrate(&models.User{},
-		&models.Character{},
-		&models.Friend{},
-		&models.Message{},
-		&models.SystemPrompt{},
-		//&models.SystemPrompt{},
-		); err != nil {
+	if err := store.RunMigrations(gormDB); err != nil {
 		log.Fatalf("数据库迁移失败: %v", err)
 	}
 	log.Println("数据库迁移结束...")

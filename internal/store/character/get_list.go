@@ -2,8 +2,10 @@ package character
 
 import (
 	"context"
+	"strings"
 
 	"github.com/aikwen/aifriend-go/internal/store/models"
+	"gorm.io/gorm"
 )
 
 // GetListByAuthorID 根据用户id和 offset 获取 limit 条数据
@@ -23,15 +25,19 @@ func (s *characterStore) GetListByAuthorID(ctx context.Context, authorID uint, o
 func (s *characterStore) GetListBySearchQuery(ctx context.Context, offset int, limit int, searchQuery string) ([]*models.Character, error) {
 	var characters []*models.Character
 
+	searchQuery = strings.TrimSpace(searchQuery)
+
 	query := s.db.WithContext(ctx).Preload("Author")
 
 	if searchQuery != "" {
-		likePattern := "%" + searchQuery + "%"
-		query = query.Where("name LIKE ? OR profile LIKE ?", likePattern, likePattern)
+		query = query.Where("MATCH (name, profile) AGAINST (? IN NATURAL LANGUAGE MODE)", searchQuery).
+                  Order(gorm.Expr("MATCH (name, profile) AGAINST (? IN NATURAL LANGUAGE MODE) DESC", searchQuery)).
+				  Order("id DESC")
+	} else {
+		query = query.Order("id DESC")
 	}
 
 	err := query.
-		Order("id DESC").
 		Offset(offset).
 		Limit(limit).
 		Find(&characters).
