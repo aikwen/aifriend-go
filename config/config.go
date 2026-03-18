@@ -20,6 +20,7 @@ type Config struct {
 	JWT    JWTConfig    `mapstructure:"jwt"`
 	Prometheus PrometheusConfig `mapstructure:"prometheus"`
 	LLM        LLMConfig        `mapstructure:"llm"`
+	Qdrant QdrantConfig  `mapstructure:"qdrant"`
 }
 
 type ServerConfig struct {
@@ -54,6 +55,15 @@ type LLMConfig struct {
     APIKey  string `mapstructure:"api_key"`
     APIBase string `mapstructure:"api_base"`
 	ModelName string `mapstructure:"model_name"`
+}
+
+type QdrantConfig struct {
+	APIKey      string `mapstructure:"api_key"`
+	Host        string `mapstructure:"host"`
+	HTTPPort   int    `mapstructure:"http_port"`
+	GRPCPort   int    `mapstructure:"grpc_port"`
+	Collection  string `mapstructure:"collection"`
+	TopK           int    `mapstructure:"top_k"`
 }
 
 // LoadConfig 读取配置并组装成 Struct
