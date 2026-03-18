@@ -12,7 +12,7 @@ type Store interface {
 	GetList(ctx context.Context, userID uint, offset int, limit int) ([]models.Friend, error)
 	Remove(ctx context.Context, userID uint, friendID uint) error
 	GetByIDAndUserID(ctx context.Context, userID uint, friendID uint) (*models.Friend, error)
-	UpdateMemory(ctx context.Context, userID uint, friendID uint, memory string) error
+	UpdateMemoryWithVersion(ctx context.Context, userID uint, friendID uint, oldVersion uint, memory string) error
 }
 
 type friendStore struct {

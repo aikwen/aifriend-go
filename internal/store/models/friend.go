@@ -14,4 +14,5 @@ type Friend struct {
 	Character   Character `gorm:"foreignKey:CharacterID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"-"`
 
 	Memory      string    `gorm:"type:text" json:"memory"`
+	Version uint `gorm:"default:1;not null" json:"version"`
 }
