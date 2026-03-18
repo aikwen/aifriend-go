@@ -33,12 +33,45 @@ func InitMySQL(cfg config.DBConfig, appEnv string) *gorm.DB {
 		},
 	)
 
-	// 打开连接
-	db, err := gorm.Open(mysql.Open(cfg.DsnMysql), &gorm.Config{
-		Logger: newLogger,
-	})
-	if err != nil {
-		log.Fatalf("连接 MySQL 失败: %v", err)
+	var db *gorm.DB
+	var err error
+	maxRetries := cfg.ConnectMaxRetries
+	retryInterval := cfg.ConnectRetryInterval
+	if maxRetries <= 0 {
+		maxRetries = 1
+	}
+
+	if retryInterval <= 0{
+		retryInterval = 3
+	}
+
+	for i := range maxRetries {
+		// 打开连接
+		db, err = gorm.Open(mysql.Open(cfg.DsnMysql), &gorm.Config{
+			Logger: newLogger,
+		})
+
+		if err == nil {
+			sqlDB, dbErr := db.DB()
+			if dbErr == nil {
+				pingErr := sqlDB.Ping()
+				if pingErr == nil {
+					log.Println("连接 MySQL 成功")
+					break
+				}
+				err = pingErr
+			} else {
+				err = dbErr
+			}
+		}
+
+		log.Printf("连接 MySQL 失败（%d/%d）: %v", i+1, maxRetries, err)
+
+		if i == maxRetries-1 {
+			log.Fatalf("连接 MySQL 最终失败: %v", err)
+		}
+
+		time.Sleep(time.Second * time.Duration(retryInterval))
 	}
 
 	// 配置连接池
