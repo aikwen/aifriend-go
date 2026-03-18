@@ -8,15 +8,10 @@ import (
 )
 
 func (f *friendStore) UpdateMemoryWithVersion(ctx context.Context, userID uint, friendID uint, oldVersion uint, memory string) error {
-	subQuery := f.db.WithContext(ctx).
-		Model(&models.Friend{}).
-		Select("friends.id").
-		Joins("INNER JOIN characters ON characters.id = friends.character_id AND characters.deleted_at IS NULL").
-		Where("friends.id = ? AND friends.user_id = ? AND friends.deleted_at IS NULL AND friends.version = ?", friendID, userID, oldVersion)
-
 	result := f.db.WithContext(ctx).
 		Model(&models.Friend{}).
-		Where("id IN (?)", subQuery).
+		Joins("INNER JOIN characters ON characters.id = friends.character_id AND characters.deleted_at IS NULL").
+		Where("friends.id = ? AND friends.user_id = ? AND friends.deleted_at IS NULL AND friends.version = ?", friendID, userID, oldVersion).
 		Updates(map[string]any{
 			"memory":  memory,
 			"version": oldVersion + 1,
