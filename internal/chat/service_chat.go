@@ -4,10 +4,12 @@ import (
 	"context"
 	"log"
 	"slices"
+	"time"
 
 	"github.com/aikwen/aifriend-go/internal/chat/llm/graph"
 	"github.com/aikwen/aifriend-go/internal/chat/llm/prompts"
 	"github.com/aikwen/aifriend-go/internal/store/models"
+	"github.com/aikwen/aifriend-go/pkg/task"
 )
 
 func (c *chatService) Chat(
@@ -25,7 +27,7 @@ func (c *chatService) Chat(
 
 	ch := make(chan StreamEvent, 16)
 
-	go func() {
+	task.Go(func() {
 		defer close(ch)
 		// 查询system prompt
 		systemMsgs, ok := c.database.Cache.SystemPrompt.Get("回复")
@@ -107,17 +109,25 @@ func (c *chatService) Chat(
 			UserMessage: message,
 			Output: finalMsg.Content,
 		}); err != nil {
-			log.Printf("保存消息错误 %v", err)
+			log.Printf("保存消息错误: %v", err)
+		}else{
+			// 更新memory
+			task.Go(func() {
+				memCtx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+				defer cancel()
+
+				if err := c.memorySvc.Update(memCtx, userID, friend); err != nil {
+					log.Printf("更新记忆错误: %v", err)
+				}
+			})
 		}
-
-
 		select {
 		case ch <- StreamEvent{
 			Type: EventDone,
 		}:
 		case <-ctx.Done():
 		}
-	}()
+	})
 
 	return ch, nil
 }

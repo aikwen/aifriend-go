@@ -5,13 +5,14 @@ import (
 	"fmt"
 
 	"github.com/aikwen/aifriend-go/internal/chat/llm/graph"
+	"github.com/aikwen/aifriend-go/internal/chat/llm/memory"
 	chatmodel "github.com/aikwen/aifriend-go/internal/chat/llm/model"
 	chattools "github.com/aikwen/aifriend-go/internal/chat/llm/tools"
 	"github.com/aikwen/aifriend-go/internal/store"
 	"github.com/aikwen/aifriend-go/internal/store/models"
 
-	"github.com/cloudwego/eino/schema"
 	einotool "github.com/cloudwego/eino/components/tool"
+	"github.com/cloudwego/eino/schema"
 )
 
 
@@ -23,6 +24,7 @@ type Service interface {
 type chatService struct {
 	database  *store.Database
     graph    *graph.Graph
+	memorySvc memory.Service
 }
 
 func NewChatService(database *store.Database) (Service, error) {
@@ -69,5 +71,6 @@ func NewChatService(database *store.Database) (Service, error) {
 	return &chatService{
 		database: database,
 		graph:    g,
+		memorySvc: memory.NewService(g, database),
 	}, nil
 }
