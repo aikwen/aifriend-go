@@ -10,11 +10,15 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
+const (
+	TimeToolName = "get_time"
+)
+
 type getTimeParams struct{}
 
 func NewGetTimeTool() tool.InvokableTool {
 	info := &schema.ToolInfo{
-		Name: "get_time",
+		Name: TimeToolName,
 		Desc: "返回当前精确时间。用户询问现在几点、当前时间、今天日期、当前日期时间时，应调用此工具。返回中国时区时间，格式为 2006-01-02 15:04:05",
 		ParamsOneOf: schema.NewParamsOneOfByParams(map[string]*schema.ParameterInfo{}),
 	}

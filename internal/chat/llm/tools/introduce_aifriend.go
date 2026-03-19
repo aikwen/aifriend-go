@@ -8,12 +8,16 @@ import (
 	"github.com/cloudwego/eino/schema"
 )
 
+const (
+	IntroduceAIFriendToolName = "introduce_aifriend"
+)
+
 type introduceAIFriendParams struct{}
 
 
 func NewIntroduceAIFriendTool() tool.InvokableTool {
 	info := &schema.ToolInfo{
-		Name: "introduce_aifriend",
+		Name: IntroduceAIFriendToolName,
 		Desc: "返回 aifriend 网站的官方介绍。用户询问 aifriend 是什么、网站能做什么、有哪些功能、这个项目是干嘛的时，应调用此工具。",
 		ParamsOneOf: schema.NewParamsOneOfByParams(map[string]*schema.ParameterInfo{}),
 	}
