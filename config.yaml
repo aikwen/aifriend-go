@@ -34,6 +34,9 @@ llm:
   api_key:
   api_base:
   model_name: "deepseek-v3.2"
+  embedding_model: "text-embedding-v4"
+  embedding_dimensions: 1024
+  embedding_batchsize: 10
 
 qdrant:
   # .env
