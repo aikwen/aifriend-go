@@ -52,9 +52,12 @@ type PrometheusConfig struct {
 }
 
 type LLMConfig struct {
-    APIKey  string `mapstructure:"api_key"`
-    APIBase string `mapstructure:"api_base"`
-	ModelName string `mapstructure:"model_name"`
+    APIKey              string `mapstructure:"api_key"`
+    APIBase             string `mapstructure:"api_base"`
+	ModelName           string `mapstructure:"model_name"`
+	EmbeddingModel      string `mapstructure:"embedding_model"`
+	EmbeddingDimensions int `mapstructure:"embedding_dimensions"`
+	EmbeddingBatchSize  int `mapstructure:"embedding_batchsize"`
 }
 
 type QdrantConfig struct {
