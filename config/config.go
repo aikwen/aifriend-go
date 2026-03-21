@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"path/filepath"
 	"strings"
 
 	"github.com/fsnotify/fsnotify"
@@ -70,25 +71,33 @@ type QdrantConfig struct {
 }
 
 // LoadConfig 读取配置并组装成 Struct
-func LoadConfig() *Config {
+func LoadConfig(configPath string) *Config {
 	if err := godotenv.Load(); err != nil {
         log.Println("未找到 .env 文件，将仅使用 config.yaml 和系统环境变量")
     }
 
+	v := viper.New()
+
 	// 设置默认值
-	viper.SetDefault("server.port", ":8000")
-	viper.SetDefault("server.mode", "dev")
+	v.SetDefault("server.port", ":8000")
+	v.SetDefault("server.mode", "dev")
+	v.SetDefault("server.enable", true)
 
-	viper.SetDefault("prometheus.enable", true)
-	viper.SetDefault("prometheus.http_addr", "127.0.0.1:8001")
+	v.SetDefault("prometheus.enable", true)
+	v.SetDefault("prometheus.http_addr", "127.0.0.1:8001")
 
-	viper.SetDefault("server.enable", true)
+	// 读取系统环境变量
+	v.AutomaticEnv()
+	v.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
-	// 读取config.yaml
-	viper.SetConfigName("config")
-	viper.SetConfigType("yaml")
-	viper.AddConfigPath(".")
-	if err := viper.ReadInConfig(); err != nil {
+	// 读取指定的配置文件
+	if configPath != "" {
+		v.SetConfigFile(configPath)
+	} else {
+		v.SetConfigFile(filepath.Join("config", "config.yaml"))
+	}
+
+	if err := v.ReadInConfig(); err != nil {
 		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
 			log.Printf("警告: 未找到 config.yaml (%v)", err)
 		} else {
@@ -96,29 +105,26 @@ func LoadConfig() *Config {
 		}
 	}
 
-	// 读取系统环境变量
-	viper.AutomaticEnv()
-	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
+	newConf := &Config{}
 
-	// 配置文件重新指向 config.yaml
-	viper.SetConfigFile("config.yaml")
-
-	if err := viper.Unmarshal(GlobalConfig); err != nil {
+	if err := v.Unmarshal(newConf); err != nil {
 		log.Fatalf("配置解析失败: %v", err)
 	}
 
+	GlobalConfig = newConf
+
 	// 热更新
-	viper.OnConfigChange(func(e fsnotify.Event) {
+	v.OnConfigChange(func(e fsnotify.Event) {
 		log.Printf("配置文件已修改: %s", e.Name)
-		newConf := &Config{}
-		if err := viper.Unmarshal(newConf); err != nil {
+		updatedConf := &Config{}
+		if err := v.Unmarshal(updatedConf); err != nil {
 			log.Printf("热更新配置解析失败: %v", err)
 		} else {
-			GlobalConfig = newConf
+			GlobalConfig = updatedConf
 			log.Printf("配置已自动更新: %+v", GlobalConfig.Server)
 		}
 	})
-	viper.WatchConfig()
+	v.WatchConfig()
 
 	return GlobalConfig
 }

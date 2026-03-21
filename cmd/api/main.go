@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"log"
 
 	"github.com/aikwen/aifriend-go/config"
@@ -18,9 +19,12 @@ import (
 )
 
 func main() {
+	configFile := flag.String("config-file", "config/config.yaml", "配置文件路径")
+	flag.Parse()
+
 	monitor.Init()
 	// 加载环境变量
-	cfg := config.LoadConfig()
+	cfg := config.LoadConfig(*configFile)
 	// 数据库
 	gormDB := db.InitMySQL(cfg.DB, cfg.Server.Mode)
 
