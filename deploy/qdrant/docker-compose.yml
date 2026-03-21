@@ -11,7 +11,7 @@ services:
       - QDRANT__SERVICE__API_KEY=${QDRANT_API_KEY:?QDRANT_API_KEY is required in .env}
     volumes:
       - qdrant_data:/qdrant/storage
-    mem_limit: 2.5g
-    cpus: 2.0
+    mem_limit: 1g
+    cpus: 1.0
 volumes:
   qdrant_data:
