@@ -15,6 +15,7 @@ type Client[T comparable] interface {
 	Search(ctx context.Context, query string, limit, offset int) ([]T, error)
 	// SetupIndex 初始化
 	SetupIndex() error
+	DeleteAllDocuments() error
 }
 
 type MeilisearchConfig struct {
