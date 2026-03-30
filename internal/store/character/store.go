@@ -16,6 +16,7 @@ type Store interface {
 	GetListBySearchQuery(ctx context.Context, offset int, limit int, searchQuery string) ([]*models.Character, error)
 	Exist(ctx context.Context, characterID uint) (bool, error)
 	GetByID(ctx context.Context, id uint) (*models.Character, error)
+	GetListByIDsWithOrder(ctx context.Context, ids []uint) ([]*models.Character, error)
 }
 
 type characterStore struct {
