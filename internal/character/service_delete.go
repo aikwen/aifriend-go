@@ -17,6 +17,8 @@ func (s *characterService) DeleteCharacter(ctx context.Context, id uint, authorI
 		return err // 如果数据库删除失败，直接返回，保留物理文件
 	}
 
+	s.syncer.Enqueue(id)
+
 	if c.Photo != ""{
 		_ = s.storage.Delete(c.Photo)
 	}

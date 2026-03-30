@@ -28,5 +28,13 @@ func (s *characterService) CreateCharacter(ctx context.Context, param *CreateCha
 		BackgroundImage: param.BgImagePath,
 	}
 
-	return s.database.Character.Create(ctx, char)
+	err := s.database.Character.Create(ctx, char)
+	if err != nil {
+		return err // 数据库写入失败，直接返回
+	}
+
+	// 同步到meilisearch
+	s.syncer.Enqueue(char.ID)
+
+	return nil
 }

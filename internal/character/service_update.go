@@ -43,5 +43,12 @@ func (s *characterService) UpdateCharacter(ctx context.Context, param *UpdateCha
 		char.BackgroundImage = param.BgImagePath
 	}
 
-	return s.database.Character.Update(ctx, char)
+	err = s.database.Character.Update(ctx, char)
+	if err != nil {
+		return err // 数据库更新失败，直接返回
+	}
+
+	s.syncer.Enqueue(char.ID)
+
+	return nil
 }
