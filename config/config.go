@@ -22,6 +22,7 @@ type Config struct {
 	Prometheus PrometheusConfig `mapstructure:"prometheus"`
 	LLM        LLMConfig        `mapstructure:"llm"`
 	Qdrant QdrantConfig  `mapstructure:"qdrant"`
+	MeiliSearch MeiliSearchConfig `mapstructure:"meilisearch"`
 }
 
 type ServerConfig struct {
@@ -64,10 +65,16 @@ type LLMConfig struct {
 type QdrantConfig struct {
 	APIKey      string `mapstructure:"api_key"`
 	Host        string `mapstructure:"host"`
-	HTTPPort   int    `mapstructure:"http_port"`
-	GRPCPort   int    `mapstructure:"grpc_port"`
+	HTTPPort    int    `mapstructure:"http_port"`
+	GRPCPort    int    `mapstructure:"grpc_port"`
 	Collection  string `mapstructure:"collection"`
-	TopK           int    `mapstructure:"top_k"`
+	TopK        int    `mapstructure:"top_k"`
+}
+
+type MeiliSearchConfig struct {
+	APIKey      string `mapstructure:"api_key"`
+	Host        string `mapstructure:"host"`
+	Port    int    `mapstructure:"port"`
 }
 
 // LoadConfig 读取配置并组装成 Struct
