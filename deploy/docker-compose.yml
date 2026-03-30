@@ -47,6 +47,25 @@ services:
       retries: 10
       start_period: 20s
 
+  meilisearch:
+    image: getmeili/meilisearch:v1.40.0
+    container_name: meilisearch
+    restart: unless-stopped
+    environment:
+      - MEILI_ENV=production
+      - MEILI_MASTER_KEY=${MEILISEARCH_API_KEY}
+    ports:
+      - 7700:7700
+    volumes:
+      - meili_data:/meili_data
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--spider", "http://127.0.0.1:7700/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+
   aifriend:
     image: aifriend-go:1.0
     container_name: aifriend
@@ -63,6 +82,8 @@ services:
     depends_on:
       mysql:
         condition: service_healthy
+      meilisearch:
+        condition: service_healthy
     environment:
       - TZ=Asia/Shanghai
       # db
@@ -75,6 +96,8 @@ services:
       - LLM_API_BASE=${LLM_API_BASE}
       # qdrant
       - QDRANT_API_KEY=${QDRANT_API_KEY}
+      # meilisearch
+      - MEILISEARCH_API_KEY=${MEILISEARCH_API_KEY}
     logging:
       driver: "json-file"
       options:
@@ -85,3 +108,4 @@ volumes:
   prometheus_data:
   grafana_data:
   mysql_data:
+  meili_data:
