@@ -14,6 +14,7 @@ import (
 	"github.com/aikwen/aifriend-go/internal/store"
 	"github.com/aikwen/aifriend-go/internal/user"
 	"github.com/aikwen/aifriend-go/pkg/db"
+	"github.com/aikwen/aifriend-go/pkg/meilisearch"
 	"github.com/aikwen/aifriend-go/pkg/monitor"
 	"github.com/aikwen/aifriend-go/pkg/storage"
 )
@@ -34,11 +35,23 @@ func main() {
 	}
 	log.Println("数据库迁移结束...")
 
+	// meilisearch
+	client := meilisearch.NewClient[uint](&meilisearch.MeilisearchConfig{
+		Host: cfg.MeiliSearch.Host,
+		Port: cfg.MeiliSearch.Port,
+		APIKey: cfg.MeiliSearch.APIKey,
+	}, "characters", "ID")
+
+	if err := client.SetupIndex(); err != nil {
+		log.Printf("Meilisearch 索引设置失败: %v", err)
+	}
+
 	// 依赖注入
 	fileStorage := storage.NewLocalStorage("media")
 	database := store.NewDatabase(gormDB)
 	userSvc := user.NewUserService(database, fileStorage)
-	charSvc := character.NewCharacterService(database, fileStorage)
+	meiliSyncer := character.NewMeiliSyncer(client, gormDB)
+	charSvc := character.NewCharacterService(database, fileStorage, meiliSyncer, client)
 	authSvc := auth.NewAuthService(database)
 	friendSvc := friend.NewFriendService(database)
 	chatSvc, err := chat.NewChatService(database)

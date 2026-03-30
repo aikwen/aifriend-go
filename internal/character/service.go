@@ -6,6 +6,7 @@ import (
 	"github.com/aikwen/aifriend-go/internal/store"
 	"github.com/aikwen/aifriend-go/internal/store/models"
 	"github.com/aikwen/aifriend-go/pkg/storage"
+	meili "github.com/aikwen/aifriend-go/pkg/meilisearch"
 )
 
 // CreateCharacterParam 包含创建角色所需的全部基础信息。
@@ -56,12 +57,16 @@ type Service interface {
 type characterService struct {
 	database  *store.Database
 	storage   storage.Storage
+	syncer    *MeiliSyncer
+	msClient  meili.Client[uint]
 }
 
 // NewCharacterService .
-func NewCharacterService(database *store.Database, st storage.Storage) Service {
+func NewCharacterService(database *store.Database, st storage.Storage, syncer *MeiliSyncer, msClient meili.Client[uint]) Service {
 	return &characterService{
 		database: database,
 		storage:        st,
+		syncer:   syncer,
+		msClient: msClient,
 	}
 }
