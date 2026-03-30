@@ -30,6 +30,7 @@ type meilisearchClient[T comparable] struct {
 }
 
 // NewClient 初始化并返回一个 Meilisearch 客户端
+// T 表示主键的类型
 func NewClient[T comparable](cfg *MeilisearchConfig, index string, primaryKey string) Client[T] {
 	addr := fmt.Sprintf("http://%s:%d", cfg.Host, cfg.Port)
 	mc := meilisearch.New(addr, meilisearch.WithAPIKey(cfg.APIKey))
