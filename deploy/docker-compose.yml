@@ -102,7 +102,7 @@ services:
       driver: "json-file"
       options:
         max-size: "20m"
-        max-file: "5"
+        max-file: "50"
 
 volumes:
   prometheus_data:
